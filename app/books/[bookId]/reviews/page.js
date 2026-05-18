@@ -1,17 +1,21 @@
 import Link from "next/link";
 import BackButton from "@/components/BackButton";
 
+
+export const dynamic = 'force-dynamic';
+
 const ReviewsPage = async ({ params }) => {
   const { bookId } = await params;
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
-  
+
   const res = await fetch(`${baseUrl}/api/reviews`, {
-    next: { revalidate: 10 }
+    cache: "no-store"
   });
-  
+
   const allReviews = await res.json();
-  const reviews = allReviews.filter(r => r.bookId === parseInt(bookId));
+
+  const reviews = allReviews.filter(r => String(r.bookId) === String(bookId));
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
@@ -28,21 +32,21 @@ const ReviewsPage = async ({ params }) => {
 
       <div className="flex flex-col gap-4">
         {reviews.length > 0 ? reviews.map((review) => (
-          <div key={review.id} className="group bg-white/40 backdrop-blur-sm rounded-2xl border border-[#E8DDD0] hover:border-[#C17B4A]/40 hover:shadow-lg transition-all overflow-hidden">
+          <div key={review.id || review._id} className="group bg-white/40 backdrop-blur-sm rounded-2xl border border-[#E8DDD0] hover:border-[#C17B4A]/40 hover:shadow-lg transition-all overflow-hidden">
             <div className="h-1 bg-linear-to-r from-[#86C5A4] to-[#C17B4A]" />
             <div className="p-6">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-[#5C3D2E] flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">{review.user[0]}</span>
+                    <span className="text-white text-xs font-bold">{review.user ? review.user[0] : "U"}</span>
                   </div>
                   <h2 className="font-bold text-[#5C3D2E]">{review.user}</h2>
                 </div>
-                <span className="text-[#C17B4A] text-sm">{"⭐".repeat(review.rating)}</span>
+                <span className="text-[#C17B4A] text-sm">{"⭐".repeat(review.rating || 0)}</span>
               </div>
               <p className="text-[#7C6355] text-sm leading-relaxed mb-4">{review.comment}</p>
               <Link
-                href={`/books/${bookId}/reviews/${review.id}`}
+                href={`/books/${bookId}/reviews/${review.id || review._id}`}
                 className="text-sm font-medium text-[#C17B4A] hover:text-[#5C3D2E] transition-colors flex items-center gap-1"
               >
                 View Review

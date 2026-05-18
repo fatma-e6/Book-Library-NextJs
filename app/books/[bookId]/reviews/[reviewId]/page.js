@@ -6,14 +6,21 @@ import BackButton from "@/components/BackButton";
 const ReviewDetailsPage = ({ params }) => {
   const { bookId, reviewId } = use(params);
   const [review, setReview] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
-    fetch(`${baseUrl}/api/reviews/${reviewId}`)
-      .then(res => res.json())
+    fetch(`${baseUrl}/api/reviews/${String(reviewId)}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
       .then(data => setReview(data))
-      .catch(err => console.error("Error fetching review:", err));
+      .catch(err => {
+        console.error("Error fetching review:", err);
+        setError(true);
+      });
   }, [reviewId]);
 
   return (
@@ -23,11 +30,14 @@ const ReviewDetailsPage = ({ params }) => {
         <div className="h-2 bg-linear-to-r from-[#86C5A4] to-[#C17B4A]" />
         <div className="p-10">
           <h1 className="text-4xl font-bold text-[#5C3D2E] mb-8 tracking-tight">Review Details</h1>
+
           {review ? (
             <div className="flex flex-col gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-[#5C3D2E] flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">{review.user ? review.user[0] : ""}</span>
+                  <span className="text-white font-bold text-lg">
+                    {review.user ? review.user[0] : "U"}
+                  </span>
                 </div>
                 <div>
                   <h2 className="font-bold text-[#5C3D2E] text-xl">{review.user}</h2>
@@ -39,6 +49,10 @@ const ReviewDetailsPage = ({ params }) => {
               <div className="bg-[#86C5A4]/10 rounded-xl p-6 border border-[#86C5A4]/20">
                 <p className="text-[#7C6355] leading-relaxed text-lg italic">"{review.comment}"</p>
               </div>
+            </div>
+          ) : error ? (
+            <div className="text-center p-4 text-red-500">
+              <p>Sorry, could not load review details online.</p>
             </div>
           ) : (
             <div className="flex items-center gap-3">
