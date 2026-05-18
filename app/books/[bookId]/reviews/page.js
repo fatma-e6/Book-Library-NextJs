@@ -2,13 +2,16 @@ import Link from "next/link";
 import BackButton from "@/components/BackButton";
 
 const ReviewsPage = async ({ params }) => {
-  const { bookId } = await params
+  const { bookId } = await params;
 
-  const res = await fetch(process.env.NEXT_PUBLIC_REVIEWS_API, {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  
+  const res = await fetch(`${baseUrl}/api/reviews`, {
     next: { revalidate: 10 }
-  })
-  const allReviews = await res.json()
-  const reviews = allReviews.filter(r => r.bookId === parseInt(bookId))
+  });
+  
+  const allReviews = await res.json();
+  const reviews = allReviews.filter(r => r.bookId === parseInt(bookId));
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
