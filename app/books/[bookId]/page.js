@@ -4,7 +4,8 @@ import BackButton from "@/components/BackButton";
 const BookDetailsPage = async ({ params }) => {
   const { bookId } = await params
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BOOKS_API}/${bookId}`, {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  const res = await fetch(`${baseUrl}/api/books/${bookId}`, {
     cache: "no-store"
   })
   const book = await res.json()
