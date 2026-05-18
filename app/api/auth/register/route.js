@@ -2,10 +2,13 @@ import User from '@/lib/models/User';
 import dbConnect from '@/lib/mongodb';
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 
 export async function POST(req) {
   try {
     await dbConnect();
+
+    mongoose.set('bufferCommands', false);
 
     const body = await req.json();
     const { username, email, password } = body;
@@ -29,6 +32,8 @@ export async function POST(req) {
 
     return NextResponse.json({ message: 'User Created', user }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ message: `Server Error, ${error}` }, { status: 500 });
+    console.error("DATABASE_OPERATION_ERROR:", error);
+    
+    return NextResponse.json({ message: `Server Error, ${error.message || error}` }, { status: 500 });
   }
 }
